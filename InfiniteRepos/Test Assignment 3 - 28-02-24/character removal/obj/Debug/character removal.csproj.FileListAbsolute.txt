@@ -1,0 +1,7 @@
+C:\Users\maheshsek\source\repos\character removal\character removal\bin\Debug\character removal.exe.config
+C:\Users\maheshsek\source\repos\character removal\character removal\bin\Debug\character removal.exe
+C:\Users\maheshsek\source\repos\character removal\character removal\bin\Debug\character removal.pdb
+C:\Users\maheshsek\source\repos\character removal\character removal\obj\Debug\character removal.csproj.AssemblyReference.cache
+C:\Users\maheshsek\source\repos\character removal\character removal\obj\Debug\character removal.csproj.CoreCompileInputs.cache
+C:\Users\maheshsek\source\repos\character removal\character removal\obj\Debug\character removal.exe
+C:\Users\maheshsek\source\repos\character removal\character removal\obj\Debug\character removal.pdb
