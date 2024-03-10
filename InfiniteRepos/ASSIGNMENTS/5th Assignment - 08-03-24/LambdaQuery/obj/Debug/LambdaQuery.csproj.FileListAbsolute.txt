@@ -1,0 +1,6 @@
+C:\Users\maheshsek\source\repos\ConcessionLibrary\LambdaQuery\obj\Debug\LambdaQuery.csproj.CoreCompileInputs.cache
+C:\Users\maheshsek\source\repos\ConcessionLibrary\LambdaQuery\bin\Debug\LambdaQuery.exe.config
+C:\Users\maheshsek\source\repos\ConcessionLibrary\LambdaQuery\bin\Debug\LambdaQuery.exe
+C:\Users\maheshsek\source\repos\ConcessionLibrary\LambdaQuery\bin\Debug\LambdaQuery.pdb
+C:\Users\maheshsek\source\repos\ConcessionLibrary\LambdaQuery\obj\Debug\LambdaQuery.exe
+C:\Users\maheshsek\source\repos\ConcessionLibrary\LambdaQuery\obj\Debug\LambdaQuery.pdb
