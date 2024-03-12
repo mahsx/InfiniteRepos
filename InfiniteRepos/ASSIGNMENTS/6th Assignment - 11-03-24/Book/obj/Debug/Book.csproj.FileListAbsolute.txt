@@ -1,0 +1,7 @@
+C:\Users\maheshsek\source\repos\Book\Book\bin\Debug\Book.exe.config
+C:\Users\maheshsek\source\repos\Book\Book\bin\Debug\Book.exe
+C:\Users\maheshsek\source\repos\Book\Book\bin\Debug\Book.pdb
+C:\Users\maheshsek\source\repos\Book\Book\obj\Debug\Book.csproj.AssemblyReference.cache
+C:\Users\maheshsek\source\repos\Book\Book\obj\Debug\Book.csproj.CoreCompileInputs.cache
+C:\Users\maheshsek\source\repos\Book\Book\obj\Debug\Book.exe
+C:\Users\maheshsek\source\repos\Book\Book\obj\Debug\Book.pdb
