@@ -1,0 +1,7 @@
+C:\Users\maheshsek\source\repos\Assessment3\Assessment3\bin\Debug\Assessment3.exe.config
+C:\Users\maheshsek\source\repos\Assessment3\Assessment3\bin\Debug\Assessment3.exe
+C:\Users\maheshsek\source\repos\Assessment3\Assessment3\bin\Debug\Assessment3.pdb
+C:\Users\maheshsek\source\repos\Assessment3\Assessment3\obj\Debug\Assessment3.csproj.CoreCompileInputs.cache
+C:\Users\maheshsek\source\repos\Assessment3\Assessment3\obj\Debug\Assessment3.exe
+C:\Users\maheshsek\source\repos\Assessment3\Assessment3\obj\Debug\Assessment3.pdb
+C:\Users\maheshsek\source\repos\Assessment3\Assessment3\obj\Debug\Assessment3.csproj.AssemblyReference.cache
