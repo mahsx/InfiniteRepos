@@ -40,6 +40,12 @@ SELECT b.title, b.author, r.reviewer_name
 FROM Books b
 INNER JOIN Reviews r ON b.id = r.book_id;
 
+-- Query 3: to display reviewer names who reviewed more than one book
+SELECT reviewer_name
+FROM Reviews
+GROUP BY reviewer_name
+HAVING COUNT(DISTINCT book_id) > 1;
+
 -- Create CUSTOMERS Table
 CREATE TABLE CUSTOMERS (
     ID INT PRIMARY KEY,
@@ -59,7 +65,7 @@ VALUES (1, 'Ramesh', 32, 'Ahmedabad', 2000.00),
        (6, 'Komal', 22, 'MP', 4500.00),
        (7, 'Muffy', 24, 'Indore', 10000.00);
 
--- Query 3: Display names of customers who live in an address containing the character 'o'
+-- Query 4: Display names of customers who live in an address containing the character 'o'
 SELECT NAME
 FROM CUSTOMERS
 WHERE ADDRESS LIKE '%o%';
@@ -80,7 +86,7 @@ VALUES (102, '2009-10-08 00:00:00', 3, 3000),
        (101, '2009-11-20 00:00:00', 2, 1560),
        (103, '2008-05-20 00:00:00', 4, 2060);
 
--- Query 4: Display Date and total number of customers who placed orders on the same date
+-- Query 5: Display Date and total number of customers who placed orders on the same date
 SELECT DATE, COUNT(CUSTOMER_ID) AS TotalCustomers
 FROM ORDERS
 GROUP BY DATE;
@@ -104,7 +110,7 @@ VALUES (1, 'Ramesh', 32, 'Ahmedabad', 2000.00),
        (6, 'Komal', 22, 'MP', NULL),
        (7, 'Muffy', 24, 'Indore', NULL);
 
--- Query 5: Display names of employees in lowercase whose salary is null
+-- Query 6: Display names of employees in lowercase whose salary is null
 SELECT LOWER(NAME) AS LowercaseName
 FROM EMPLOYEE
 WHERE SALARY IS NULL;
@@ -130,14 +136,7 @@ VALUES (1, 'Sai', 22, 'B.E', 9952836777, 'Sai@gmail.com', 'Chennai', 'M'),
        (5, 'SaiSaran', 21, 'B.A', 7890345678, 'saran@gmail.com', 'Madurai', 'F'),
        (6, 'Tom', 23, 'BCA', 8901234675, 'Tom@gmail.com', 'Pune', 'M');
 
--- Query 6: Display gender and total count of males and females from the StudentDetails table
+-- Query 7: Display gender and total count of males and females from the StudentDetails table
 SELECT Gender, COUNT(*) AS TotalCount
 FROM StudentDetails
 GROUP BY Gender;
-
-
-
-
-
-
-
