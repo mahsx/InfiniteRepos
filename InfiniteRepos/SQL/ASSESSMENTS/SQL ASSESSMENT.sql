@@ -16,7 +16,7 @@ VALUES (1, 'My First SQL book', 'Mary Parker', 981483029127, '2012-02-22 12:08:1
        (3, 'My Third SQL book', 'Cary Flint', 523120967812, '2015-10-18 14:05:44');
 
 -- Query 1: Fetch details of books written by authors whose names end with "er"
-SELECT * FROM Books WHERE author LIKE '%er';
+SELECT * FROM Books WHERE author LIKE '%er%';
 
 -- Create Reviews Table
 CREATE TABLE Reviews (
@@ -38,7 +38,7 @@ VALUES (1, 1, 'John Smith', 'My first review', 4, '2017-12-10 05:50:11.1'),
 -- Query 2: Display Title, Author, and ReviewerName for all books
 SELECT b.title, b.author, r.reviewer_name
 FROM Books b
-INNER JOIN Reviews r ON b.id = r.book_id;
+INNER JOIN Reviews r ON b.id = r.id;
 
 -- Query 3: to display reviewer names who reviewed more than one book
 SELECT reviewer_name
