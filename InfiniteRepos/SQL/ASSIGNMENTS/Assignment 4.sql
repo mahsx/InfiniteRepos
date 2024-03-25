@@ -67,7 +67,7 @@ BEGIN
         OR h.holiday_date IN (SELECT hiredate FROM deleted)
     )
     BEGIN
-        RAISERROR('Data manipulation not allowed during holidays', 16, 1);
+        PRINT('Data manipulation not allowed during holidays')
         ROLLBACK TRANSACTION;
     END
     ELSE
