@@ -1,3 +1,6 @@
+use InfiniteAssignment
+
+
 -- find factorial
 
 DECLARE @number INT, @factorial BIGINT
@@ -38,6 +41,7 @@ end
 exec GenerateMultiplicationTables @maxNumber = 5
 
 -- holiday list
+
 create table holiday (
     holiday_date date primary key,
     holiday_name varchar(50)
@@ -45,7 +49,45 @@ create table holiday (
 
 insert into holiday (holiday_date, holiday_name)
 values
-	('2024-03-25','Holi'),
+	('2024-01-26','	Republic day'),
     ('2024-08-15', 'Independence Day'),
     ('2024-10-02', 'Gandhi Baba'),
     ('2024-12-25', 'Christmas')
+
+
+CREATE OR ALTER TRIGGER trg_restrict_holidays
+ON EMP
+INSTEAD OF INSERT, UPDATE, DELETE
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1 
+        FROM holiday h 
+        WHERE h.holiday_date IN (SELECT hiredate FROM inserted) 
+        OR h.holiday_date IN (SELECT hiredate FROM deleted)
+    )
+    BEGIN
+        RAISERROR('Data manipulation not allowed during holidays', 16, 1);
+        ROLLBACK TRANSACTION;
+    END
+    ELSE
+    BEGIN
+        INSERT INTO EMP (EMPNO, ENAME, JOB, MGR_ID, HIREDATE, SAL, COMM, DEPTNO)
+        SELECT EMPNO, ENAME, JOB, MGR_ID, HIREDATE, SAL, COMM, DEPTNO 
+        FROM inserted;
+
+        DELETE FROM EMP WHERE EMPNO IN (SELECT EMPNO FROM deleted)
+    END
+END;
+
+
+-- Insert data into EMP table to check the trigger
+INSERT INTO EMP (EMPNO, ENAME, JOB, MGR_ID, HIREDATE, SAL, COMM, DEPTNO)
+VALUES
+    (1001, 'Mahesh', 'Manager', 7839, '2024-01-26', 5000, NULL, 10)
+
+	SELECT * FROM EMP
+
+
+
+
