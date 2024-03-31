@@ -1,0 +1,7 @@
+C:\Users\maheshsek\source\repos\ADO_ASSIGNMENT\ADO_ASSIGNMENT\bin\Debug\ADO_ASSIGNMENT.exe.config
+C:\Users\maheshsek\source\repos\ADO_ASSIGNMENT\ADO_ASSIGNMENT\bin\Debug\ADO_ASSIGNMENT.exe
+C:\Users\maheshsek\source\repos\ADO_ASSIGNMENT\ADO_ASSIGNMENT\bin\Debug\ADO_ASSIGNMENT.pdb
+C:\Users\maheshsek\source\repos\ADO_ASSIGNMENT\ADO_ASSIGNMENT\obj\Debug\ADO_ASSIGNMENT.csproj.AssemblyReference.cache
+C:\Users\maheshsek\source\repos\ADO_ASSIGNMENT\ADO_ASSIGNMENT\obj\Debug\ADO_ASSIGNMENT.csproj.CoreCompileInputs.cache
+C:\Users\maheshsek\source\repos\ADO_ASSIGNMENT\ADO_ASSIGNMENT\obj\Debug\ADO_ASSIGNMENT.exe
+C:\Users\maheshsek\source\repos\ADO_ASSIGNMENT\ADO_ASSIGNMENT\obj\Debug\ADO_ASSIGNMENT.pdb
