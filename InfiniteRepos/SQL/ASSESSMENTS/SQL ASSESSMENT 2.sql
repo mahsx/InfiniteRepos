@@ -122,7 +122,9 @@ BEGIN TRANSACTION;
 -- Commit transaction if all operations are successful
 COMMIT
 
+SELECT * FROM DeletedINFINITEEmployee
 SELECT * FROM EmployeeINFINITE
+
 
 /*
 

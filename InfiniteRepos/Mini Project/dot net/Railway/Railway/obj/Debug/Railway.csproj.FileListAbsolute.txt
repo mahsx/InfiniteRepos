@@ -1,0 +1,7 @@
+C:\Users\maheshsek\source\repos\Railway\Railway\obj\Debug\Railway.csproj.AssemblyReference.cache
+C:\Users\maheshsek\source\repos\Railway\Railway\obj\Debug\Railway.csproj.CoreCompileInputs.cache
+C:\Users\maheshsek\source\repos\Railway\Railway\bin\Debug\Railway.exe.config
+C:\Users\maheshsek\source\repos\Railway\Railway\bin\Debug\Railway.exe
+C:\Users\maheshsek\source\repos\Railway\Railway\bin\Debug\Railway.pdb
+C:\Users\maheshsek\source\repos\Railway\Railway\obj\Debug\Railway.exe
+C:\Users\maheshsek\source\repos\Railway\Railway\obj\Debug\Railway.pdb
