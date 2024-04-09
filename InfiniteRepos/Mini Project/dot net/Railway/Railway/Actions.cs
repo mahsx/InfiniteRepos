@@ -105,17 +105,20 @@ namespace RailwayTicketBookingSystem
 
         public static void AddTrain()
         {
+            Console.WriteLine("Enter Train ID:");
+            int trainId = int.Parse(Console.ReadLine());
+
             Console.WriteLine("Enter Train Name:");
             string trainName = Console.ReadLine();
 
-            Console.WriteLine("Enter Class (1st/2nd/Sleeper):");
-            string trainClass = Console.ReadLine();
+            Console.WriteLine("Enter Total Berths (1st Class):");
+            int firstClassBerths = int.Parse(Console.ReadLine());
 
-            Console.WriteLine("Enter Total Berths:");
-            int totalBerths = int.Parse(Console.ReadLine());
+            Console.WriteLine("Enter Total Berths (2nd Class):");
+            int secondClassBerths = int.Parse(Console.ReadLine());
 
-            Console.WriteLine("Enter Available Berths:");
-            int availableBerths = int.Parse(Console.ReadLine());
+            Console.WriteLine("Enter Total Berths (Sleeper):");
+            int sleeperBerths = int.Parse(Console.ReadLine());
 
             Console.WriteLine("Enter Source:");
             string source = Console.ReadLine();
@@ -123,13 +126,14 @@ namespace RailwayTicketBookingSystem
             Console.WriteLine("Enter Destination:");
             string destination = Console.ReadLine();
 
-            using (SqlCommand command = new SqlCommand("INSERT INTO Trains (TrainName, Class, TotalBerths, AvailableBerths, Source, Destination) " +
-                                                    "VALUES (@TrainName, @Class, @TotalBerths, @AvailableBerths, @Source, @Destination)", connection))
+            using (SqlCommand command = new SqlCommand("INSERT INTO Trains (TrainId, TrainName, FirstClassBerths, SecondClassBerths, SleeperBerths, Source, Destination) " +
+                                                    "VALUES (@TrainId, @TrainName, @FirstClassBerths, @SecondClassBerths, @SleeperBerths, @Source, @Destination)", connection))
             {
+                command.Parameters.AddWithValue("@TrainId", trainId);
                 command.Parameters.AddWithValue("@TrainName", trainName);
-                command.Parameters.AddWithValue("@Class", trainClass);
-                command.Parameters.AddWithValue("@TotalBerths", totalBerths);
-                command.Parameters.AddWithValue("@AvailableBerths", availableBerths);
+                command.Parameters.AddWithValue("@FirstClassBerths", firstClassBerths);
+                command.Parameters.AddWithValue("@SecondClassBerths", secondClassBerths);
+                command.Parameters.AddWithValue("@SleeperBerths", sleeperBerths);
                 command.Parameters.AddWithValue("@Source", source);
                 command.Parameters.AddWithValue("@Destination", destination);
                 command.ExecuteNonQuery();
@@ -139,41 +143,41 @@ namespace RailwayTicketBookingSystem
 
         public static void ModifyTrain()
         {
-            Console.WriteLine("Enter Train Name to Modify:");
-            string trainName = Console.ReadLine();
+            Console.WriteLine("Enter Train ID to Modify:");
+            int trainId = int.Parse(Console.ReadLine());
 
             // Check if the train exists
-            int trainId = GetTrainId(trainName);
-            if (trainId == -1)
+            string trainName = GetTrainName(trainId);
+            if (trainName == null)
             {
                 Console.WriteLine("Train does not exist.");
                 return;
             }
 
-            Console.WriteLine("Enter New Class (1st/2nd/Sleeper):");
-            string trainClass = Console.ReadLine();
+            Console.WriteLine("Enter New Total Berths (1st Class):");
+            int newFirstClassBerths = int.Parse(Console.ReadLine());
 
-            Console.WriteLine("Enter New Total Berths:");
-            int totalBerths = int.Parse(Console.ReadLine());
+            Console.WriteLine("Enter New Total Berths (2nd Class):");
+            int newSecondClassBerths = int.Parse(Console.ReadLine());
 
-            Console.WriteLine("Enter New Available Berths:");
-            int availableBerths = int.Parse(Console.ReadLine());
+            Console.WriteLine("Enter New Total Berths (Sleeper):");
+            int newSleeperBerths = int.Parse(Console.ReadLine());
 
             Console.WriteLine("Enter New Source:");
-            string source = Console.ReadLine();
+            string newSource = Console.ReadLine();
 
             Console.WriteLine("Enter New Destination:");
-            string destination = Console.ReadLine();
+            string newDestination = Console.ReadLine();
 
-            using (SqlCommand command = new SqlCommand("UPDATE Trains SET Class = @Class, TotalBerths = @TotalBerths, AvailableBerths = @AvailableBerths, " +
-                                                        "Source = @Source, Destination = @Destination WHERE TrainName = @TrainName", connection))
+            using (SqlCommand command = new SqlCommand("UPDATE Trains SET FirstClassBerths = @NewFirstClassBerths, SecondClassBerths = @NewSecondClassBerths, " +
+                                                        "SleeperBerths = @NewSleeperBerths, Source = @NewSource, Destination = @NewDestination WHERE TrainId = @TrainId", connection))
             {
-                command.Parameters.AddWithValue("@TrainName", trainName);
-                command.Parameters.AddWithValue("@Class", trainClass);
-                command.Parameters.AddWithValue("@TotalBerths", totalBerths);
-                command.Parameters.AddWithValue("@AvailableBerths", availableBerths);
-                command.Parameters.AddWithValue("@Source", source);
-                command.Parameters.AddWithValue("@Destination", destination);
+                command.Parameters.AddWithValue("@TrainId", trainId);
+                command.Parameters.AddWithValue("@NewFirstClassBerths", newFirstClassBerths);
+                command.Parameters.AddWithValue("@NewSecondClassBerths", newSecondClassBerths);
+                command.Parameters.AddWithValue("@NewSleeperBerths", newSleeperBerths);
+                command.Parameters.AddWithValue("@NewSource", newSource);
+                command.Parameters.AddWithValue("@NewDestination", newDestination);
                 command.ExecuteNonQuery();
                 Console.WriteLine("Train modified successfully.");
             }
@@ -181,38 +185,38 @@ namespace RailwayTicketBookingSystem
 
         public static void DeleteTrain()
         {
-            Console.WriteLine("Enter Train Name to Delete:");
-            string trainName = Console.ReadLine();
+            Console.WriteLine("Enter Train ID to Delete:");
+            int trainId = int.Parse(Console.ReadLine());
 
             // Check if the train exists
-            int trainId = GetTrainId(trainName);
-            if (trainId == -1)
+            string trainName = GetTrainName(trainId);
+            if (trainName == null)
             {
                 Console.WriteLine("Train does not exist.");
                 return;
             }
 
-            using (SqlCommand command = new SqlCommand("DELETE FROM Trains WHERE TrainName = @TrainName", connection))
+            using (SqlCommand command = new SqlCommand("DELETE FROM Trains WHERE TrainId = @TrainId", connection))
             {
-                command.Parameters.AddWithValue("@TrainName", trainName);
+                command.Parameters.AddWithValue("@TrainId", trainId);
                 command.ExecuteNonQuery();
                 Console.WriteLine("Train deleted successfully.");
             }
         }
 
-        private static int GetTrainId(string trainName)
+        private static string GetTrainName(int trainId)
         {
-            int trainId = -1;
-            using (SqlCommand command = new SqlCommand("SELECT TrainId FROM Trains WHERE TrainName = @TrainName", connection))
+            string trainName = null;
+            using (SqlCommand command = new SqlCommand("SELECT TrainName FROM Trains WHERE TrainId = @TrainId", connection))
             {
-                command.Parameters.AddWithValue("@TrainName", trainName);
+                command.Parameters.AddWithValue("@TrainId", trainId);
                 object result = command.ExecuteScalar();
                 if (result != null)
                 {
-                    trainId = Convert.ToInt32(result);
+                    trainName = result.ToString();
                 }
             }
-            return trainId;
+            return trainName;
         }
     }
 
@@ -222,29 +226,176 @@ namespace RailwayTicketBookingSystem
 
         public static void BookTicket()
         {
-            // Book ticket functionality
-            Console.WriteLine("Book Ticket functionality is not implemented yet.");
+            Console.WriteLine("Enter Train ID to Book Ticket:");
+            int trainId = int.Parse(Console.ReadLine());
+
+            Console.WriteLine("Select Class (1st/2nd/Sleeper):");
+            string selectedClass = Console.ReadLine();
+
+            // Check if the train exists
+            string trainName = GetTrainName(trainId);
+            if (trainName == null)
+            {
+                Console.WriteLine("Train does not exist.");
+                return;
+            }
+
+            // Check available berths in the selected class
+            int availableBerths = GetAvailableBerths(trainId, selectedClass);
+            if (availableBerths <= 0)
+            {
+                Console.WriteLine($"No available berths for {selectedClass} class on this train.");
+                return;
+            }
+
+            Console.WriteLine("Enter Number of Tickets to Book:");
+            int ticketsToBook = int.Parse(Console.ReadLine());
+
+            if (ticketsToBook > availableBerths)
+            {
+                Console.WriteLine($"Insufficient available berths for {selectedClass} class. Available berths: {availableBerths}");
+                return;
+            }
+
+            // Update available berths in the selected class
+            UpdateAvailableBerths(trainId, selectedClass, availableBerths - ticketsToBook);
+
+            Console.WriteLine($"Tickets booked successfully for {ticketsToBook} passengers in {selectedClass} class.");
         }
 
         public static void CancelTicket()
         {
-            // Cancel ticket functionality
-            Console.WriteLine("Cancel Ticket functionality is not implemented yet.");
+            Console.WriteLine("Enter Train ID to Cancel Ticket:");
+            int trainId = int.Parse(Console.ReadLine());
+
+            Console.WriteLine("Select Class (1st/2nd/Sleeper):");
+            string selectedClass = Console.ReadLine();
+
+            // Check if the train exists
+            string trainName = GetTrainName(trainId);
+            if (trainName == null)
+            {
+                Console.WriteLine("Train does not exist.");
+                return;
+            }
+
+            Console.WriteLine("Enter Number of Tickets to Cancel:");
+            int ticketsToCancel = int.Parse(Console.ReadLine());
+
+            // Check if tickets can be canceled
+            if (ticketsToCancel <= 0)
+            {
+                Console.WriteLine("Invalid number of tickets to cancel.");
+                return;
+            }
+
+            // Update available berths in the selected class
+            int availableBerths = GetAvailableBerths(trainId, selectedClass);
+            UpdateAvailableBerths(trainId, selectedClass, availableBerths + ticketsToCancel);
+
+            Console.WriteLine($"Tickets canceled successfully for {ticketsToCancel} passengers in {selectedClass} class.");
         }
 
         public static void ShowAvailableTrains()
         {
-            // Show available trains functionality
-            using (SqlCommand command = new SqlCommand("SELECT * FROM Trains", connection))
+
+            using (SqlCommand command = new SqlCommand("SELECT TrainName,TrainId,Source,Destination, FirstClassBerths, SecondClassBerths, SleeperBerths FROM Trains", connection))
             {
                 SqlDataReader reader = command.ExecuteReader();
 
-                Console.WriteLine("Available Trains:");
-                Console.WriteLine("Train Name | Class | Total Berths | Available Berths | Source | Destination");
+                Console.WriteLine($"Available Trains:");
                 while (reader.Read())
                 {
-                    Console.WriteLine($"{reader["TrainName"]} | {reader["Class"]} | {reader["TotalBerths"]} | {reader["AvailableBerths"]} | {reader["Source"]} | {reader["Destination"]}");
+                    Console.WriteLine($"Train Name: {reader["TrainName"]}");
+                    Console.WriteLine($"Train ID: {reader["TrainId"]}");
+                    Console.WriteLine($"Route: {reader["Source"]} to {reader["Destination"]}");
+                    Console.WriteLine($"1st Class Berths: {reader["FirstClassBerths"]}");
+                    Console.WriteLine($"2nd Class Berths: {reader["SecondClassBerths"]}");
+                    Console.WriteLine($"Sleeper Berths: {reader["SleeperBerths"]}");
+                    Console.WriteLine("---------------------------------------------");
                 }
+            }
+        } // completed this
+
+        private static string GetTrainName(int trainId)
+        {
+            string trainName = null;
+            using (SqlCommand command = new SqlCommand("SELECT TrainName FROM Trains WHERE TrainId = @TrainId", connection))
+            {
+                command.Parameters.AddWithValue("@TrainId", trainId);
+                object result = command.ExecuteScalar();
+                if (result != null)
+                {
+                    trainName = result.ToString();
+                }
+            }
+            return trainName;
+        }
+
+        private static int GetAvailableBerths(int trainId, string selectedClass)
+        {
+            int availableBerths = -1;
+            string column = "";
+            switch (selectedClass.ToLower())
+            {
+                case "1st":
+                case "first":
+                case "1st class":
+                    column = "FirstClassBerths";
+                    break;
+                case "2nd":
+                case "second":
+                case "2nd class":
+                    column = "SecondClassBerths";
+                    break;
+                case "sleeper":
+                    column = "SleeperBerths";
+                    break;
+                default:
+                    Console.WriteLine("Invalid class selection.");
+                    return availableBerths;
+            }
+
+            using (SqlCommand command = new SqlCommand($"SELECT {column} FROM Trains WHERE TrainId = @TrainId", connection))
+            {
+                command.Parameters.AddWithValue("@TrainId", trainId);
+                object result = command.ExecuteScalar();
+                if (result != null)
+                {
+                    availableBerths = Convert.ToInt32(result);
+                }
+            }
+            return availableBerths;
+        }
+
+        private static void UpdateAvailableBerths(int trainId, string selectedClass, int newAvailableBerths)
+        {
+            string column = "";
+            switch (selectedClass.ToLower())
+            {
+                case "1st":
+                case "first":
+                case "1st class":
+                    column = "FirstClassBerths";
+                    break;
+                case "2nd":
+                case "second":
+                case "2nd class":
+                    column = "SecondClassBerths";
+                    break;
+                case "sleeper":
+                    column = "SleeperBerths";
+                    break;
+                default:
+                    Console.WriteLine("Invalid class selection.");
+                    return;
+            }
+
+            using (SqlCommand command = new SqlCommand($"UPDATE Trains SET {column} = @AvailableBerths WHERE TrainId = @TrainId", connection))
+            {
+                command.Parameters.AddWithValue("@TrainId", trainId);
+                command.Parameters.AddWithValue("@AvailableBerths", newAvailableBerths);
+                command.ExecuteNonQuery();
             }
         }
     }
