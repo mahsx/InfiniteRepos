@@ -5,65 +5,133 @@ namespace RailwayTicketBookingSystem
 {
     class Program
     {
-        private static SqlConnection connection = getConnection();
-
-        public static SqlConnection getConnection()
-        {
-            SqlConnection con = new SqlConnection("Server=ICS-LT-4XYM473\\SQLEXPRESS;Database=Trains;Integrated Security=True;");
-            con.Open();
-            return con;
-        }
+        private static string connectionString = "Server=ICS-LT-4XYM473\\SQLEXPRESS;Database=Trains;Integrated Security=True;";
+        private static SqlConnection connection = new SqlConnection(connectionString);
+        private static int UserId; // This should be set after successful user login
+        private static int AdminId;
 
         static void Main(string[] args)
         {
-            while (true)
+            Home();
+            Console.ReadKey();
+        }
+
+        static void Home()
+        {
+            try
             {
-                Console.WriteLine("Welcome to Railway Ticket Booking System");
-                Console.WriteLine("1. Admin");
-                Console.WriteLine("2. User");
-                Console.WriteLine("3. Exit");
-                Console.WriteLine("Enter your choice:");
+                connection.Open();
+                Console.WriteLine("\n Database connection established. \n ");
 
-                int choice = int.Parse(Console.ReadLine());
-
-                switch (choice)
+                while (true)
                 {
-                    case 1:
-                        AdminActions();
-                        break;
-                    case 2:
-                        UserActions();
-                        break;
-                    case 3:
-                        Environment.Exit(0);
-                        break;
-                    default:
-                        Console.WriteLine("Invalid choice. Please try again.");
-                        break;
+                    Console.WriteLine("\t\t\t\t\t Welcome to Railway Ticket Booking System ");
+                    Console.WriteLine("\t\t\t\t\t------------------------------------------ \n");
+                    Console.WriteLine("1. Admin \n");
+                    Console.WriteLine("2. User \n");
+                    Console.WriteLine("3. Exit \n");
+                    Console.WriteLine("Enter your choice:");
+
+                    int choice;
+                    if (!int.TryParse(Console.ReadLine(), out choice))
+                    {
+                        Console.WriteLine("\n Invalid input. Please enter a number.");
+                        continue;
+                    }
+
+                    switch (choice)
+                    {
+                        case 1:
+                            AdminLogin();
+                            break;
+                        case 2:
+                            UserActions();
+                            break;
+                        case 3:
+                            Environment.Exit(0);
+                            break;
+                        default:
+                            Console.WriteLine("\n Invalid choice. Please try again.");
+                            break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+            finally
+            {
+                if (connection.State == System.Data.ConnectionState.Open)
+                {
+                    connection.Close();
+                    Console.WriteLine("Database connection closed. \n");
+                }
+            }
+        }
+
+        static void AdminLogin()
+        {
+            Console.WriteLine("Enter Admin Username:");
+            string Username = Console.ReadLine();
+
+            Console.WriteLine("Enter Admin Password:");
+            string Password = Console.ReadLine();
+
+            string query = "SELECT AdminId FROM Admins WHERE Username = @Username AND Password = @Password";
+
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@Username", Username);
+                command.Parameters.AddWithValue("@Password", Password);
+                object result = command.ExecuteScalar();
+                if (result != null)
+                {
+                    AdminActions();
+                }
+                else
+                {
+                    Console.WriteLine("Invalid admin credentials.");
                 }
             }
         }
 
         static void AdminActions()
         {
-            Console.WriteLine("Admin Actions:");
-            Console.WriteLine("1. Add Train");
-            Console.WriteLine("2. Modify Train");
-            Console.WriteLine("3. Delete Train");
-            Console.WriteLine("Enter your choice:");
+            Console.WriteLine("\t\t\t\t\t WELCOME TO ADMIN SECTION");
+            Console.WriteLine("\t\t\t\t\t ------------------------- \n");
+            Console.WriteLine("1. Add Train \n ");
+            Console.WriteLine("2. Modify Train \n ");
+            Console.WriteLine("3. Delete Train \n ");
+            Console.WriteLine("4. Show All Trains \n");
+            Console.WriteLine("5. Logout \n");
+            Console.WriteLine("Enter your choice: \n ");
 
-            int adminChoice = int.Parse(Console.ReadLine());
+            int adminChoice;
+            if (!int.TryParse(Console.ReadLine(), out adminChoice))
+            {
+                Console.WriteLine("Invalid input. Please enter a number.");
+                return;
+            }
 
             switch (adminChoice)
             {
                 case 1:
-                    Admin.AddTrain();
+                    Admin.AddTrain(connection);
                     break;
                 case 2:
-                    Admin.ModifyTrain();
+                    Admin.ModifyTrain(connection);
                     break;
                 case 3:
-                    Admin.DeleteTrain();
+                    Admin.DeleteTrain(connection);
+                    break;
+                case 4:
+                    Admin.ShowAllTrains(connection);
+                    break;
+                case 5:
+                    AdminId = 0; // Logout by resetting AdminId
+                    Console.WriteLine("Logged out successfully.");
+                    Home(); // Redirect back to Home page
                     break;
                 default:
                     Console.WriteLine("Invalid choice. Please try again.");
@@ -71,268 +139,243 @@ namespace RailwayTicketBookingSystem
             }
         }
 
+
+
         static void UserActions()
         {
-            Console.WriteLine("User Actions:");
-            Console.WriteLine("1. Book Ticket");
-            Console.WriteLine("2. Cancel Ticket");
-            Console.WriteLine("3. Show Available Trains");
+            Console.WriteLine("\t\t\t\t\t WELCOME TO USER SECTION");
+            Console.WriteLine("\t\t\t\t\t ------------------------ \n");
+            Console.WriteLine("1. Existing User Login");
+            Console.WriteLine("2. New User Registration");
             Console.WriteLine("Enter your choice:");
 
-            int userChoice = int.Parse(Console.ReadLine());
+            int userChoice;
+            if (!int.TryParse(Console.ReadLine(), out userChoice))
+            {
+                Console.WriteLine("Invalid input. Please enter a number.");
+                return;
+            }
 
             switch (userChoice)
             {
                 case 1:
-                    User.BookTicket();
+                    UserLogin();
                     break;
                 case 2:
-                    User.CancelTicket();
-                    break;
-                case 3:
-                    User.ShowAvailableTrains();
+                    RegisterUser();
                     break;
                 default:
                     Console.WriteLine("Invalid choice. Please try again.");
                     break;
             }
         }
-    }
 
-    class Admin
-    {
-        private static SqlConnection connection = Program.getConnection();
-
-        public static void AddTrain()
+        static void UserLogin()
         {
-            Console.WriteLine("Enter Train ID:");
-            int trainId = int.Parse(Console.ReadLine());
+            Console.WriteLine("Enter Username:");
+            string username = Console.ReadLine();
 
-            Console.WriteLine("Enter Train Name:");
-            string trainName = Console.ReadLine();
+            Console.WriteLine("Enter Password:");
+            string password = Console.ReadLine();
 
-            Console.WriteLine("Enter Total Berths (1st Class):");
-            int firstClassBerths = int.Parse(Console.ReadLine());
+            string query = "SELECT UserId FROM Users WHERE Username = @Username AND Password = @Password";
 
-            Console.WriteLine("Enter Total Berths (2nd Class):");
-            int secondClassBerths = int.Parse(Console.ReadLine());
-
-            Console.WriteLine("Enter Total Berths (Sleeper):");
-            int sleeperBerths = int.Parse(Console.ReadLine());
-
-            Console.WriteLine("Enter Source:");
-            string source = Console.ReadLine();
-
-            Console.WriteLine("Enter Destination:");
-            string destination = Console.ReadLine();
-
-            using (SqlCommand command = new SqlCommand("INSERT INTO Trains (TrainId, TrainName, FirstClassBerths, SecondClassBerths, SleeperBerths, Source, Destination) " +
-                                                    "VALUES (@TrainId, @TrainName, @FirstClassBerths, @SecondClassBerths, @SleeperBerths, @Source, @Destination)", connection))
+            using (SqlCommand command = new SqlCommand(query, connection))
             {
-                command.Parameters.AddWithValue("@TrainId", trainId);
-                command.Parameters.AddWithValue("@TrainName", trainName);
-                command.Parameters.AddWithValue("@FirstClassBerths", firstClassBerths);
-                command.Parameters.AddWithValue("@SecondClassBerths", secondClassBerths);
-                command.Parameters.AddWithValue("@SleeperBerths", sleeperBerths);
-                command.Parameters.AddWithValue("@Source", source);
-                command.Parameters.AddWithValue("@Destination", destination);
-                command.ExecuteNonQuery();
-                Console.WriteLine("Train added successfully.");
-            }
-        }
-
-        public static void ModifyTrain()
-        {
-            Console.WriteLine("Enter Train ID to Modify:");
-            int trainId = int.Parse(Console.ReadLine());
-
-            // Check if the train exists
-            string trainName = GetTrainName(trainId);
-            if (trainName == null)
-            {
-                Console.WriteLine("Train does not exist.");
-                return;
-            }
-
-            Console.WriteLine("Enter New Total Berths (1st Class):");
-            int newFirstClassBerths = int.Parse(Console.ReadLine());
-
-            Console.WriteLine("Enter New Total Berths (2nd Class):");
-            int newSecondClassBerths = int.Parse(Console.ReadLine());
-
-            Console.WriteLine("Enter New Total Berths (Sleeper):");
-            int newSleeperBerths = int.Parse(Console.ReadLine());
-
-            Console.WriteLine("Enter New Source:");
-            string newSource = Console.ReadLine();
-
-            Console.WriteLine("Enter New Destination:");
-            string newDestination = Console.ReadLine();
-
-            using (SqlCommand command = new SqlCommand("UPDATE Trains SET FirstClassBerths = @NewFirstClassBerths, SecondClassBerths = @NewSecondClassBerths, " +
-                                                        "SleeperBerths = @NewSleeperBerths, Source = @NewSource, Destination = @NewDestination WHERE TrainId = @TrainId", connection))
-            {
-                command.Parameters.AddWithValue("@TrainId", trainId);
-                command.Parameters.AddWithValue("@NewFirstClassBerths", newFirstClassBerths);
-                command.Parameters.AddWithValue("@NewSecondClassBerths", newSecondClassBerths);
-                command.Parameters.AddWithValue("@NewSleeperBerths", newSleeperBerths);
-                command.Parameters.AddWithValue("@NewSource", newSource);
-                command.Parameters.AddWithValue("@NewDestination", newDestination);
-                command.ExecuteNonQuery();
-                Console.WriteLine("Train modified successfully.");
-            }
-        }
-
-        public static void DeleteTrain()
-        {
-            Console.WriteLine("Enter Train ID to Delete:");
-            int trainId = int.Parse(Console.ReadLine());
-
-            // Check if the train exists
-            string trainName = GetTrainName(trainId);
-            if (trainName == null)
-            {
-                Console.WriteLine("Train does not exist.");
-                return;
-            }
-
-            using (SqlCommand command = new SqlCommand("DELETE FROM Trains WHERE TrainId = @TrainId", connection))
-            {
-                command.Parameters.AddWithValue("@TrainId", trainId);
-                command.ExecuteNonQuery();
-                Console.WriteLine("Train deleted successfully.");
-            }
-        }
-
-        private static string GetTrainName(int trainId)
-        {
-            string trainName = null;
-            using (SqlCommand command = new SqlCommand("SELECT TrainName FROM Trains WHERE TrainId = @TrainId", connection))
-            {
-                command.Parameters.AddWithValue("@TrainId", trainId);
+                command.Parameters.AddWithValue("@Username", username);
+                command.Parameters.AddWithValue("@Password", password);
                 object result = command.ExecuteScalar();
                 if (result != null)
                 {
-                    trainName = result.ToString();
+                    UserId = Convert.ToInt32(result);
+                    Console.WriteLine("Login successful.");
+                    UserActionsAfterLogin(); // Redirect to actions after login
+                }
+                else
+                {
+                    Console.WriteLine("Invalid username or password.");
+                    UserActions(); // Redirect back to user action page
                 }
             }
-            return trainName;
         }
-    }
 
-    class User
-    {
-        private static SqlConnection connection = Program.getConnection();
-
-        public static void BookTicket()
+        static void RegisterUser()
         {
+            Console.WriteLine("Enter Username:");
+            string username = Console.ReadLine();
+
+            Console.WriteLine("Enter Password:");
+            string password = Console.ReadLine();
+
+            string query = "INSERT INTO Users (Username, Password) VALUES (@Username, @Password)";
+
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@Username", username);
+                command.Parameters.AddWithValue("@Password", password);
+
+                int rowsAffected = command.ExecuteNonQuery();
+                if (rowsAffected > 0)
+                {
+                    Console.WriteLine("User registered successfully.");
+                    UserLogin(); // Redirect to login after registration
+                }
+                else
+                    Console.WriteLine("Failed to register user.");
+            }
+        }
+
+        static void UserActionsAfterLogin()
+        {
+            Console.WriteLine("\t\t\t\t\t WELCOME TO USER SECTION");
+            Console.WriteLine("\t\t\t\t\t ------------------------ \n");
+            Console.WriteLine("1. Book Ticket");
+            Console.WriteLine("2. Cancel Ticket");
+            Console.WriteLine("3. Show Available Trains");
+            Console.WriteLine("4. Logout");
+            Console.WriteLine("Enter your choice:");
+
+            int userChoice;
+            if (!int.TryParse(Console.ReadLine(), out userChoice))
+            {
+                Console.WriteLine("Invalid input. Please enter a number.");
+                UserActionsAfterLogin(); // Redirect back to actions after login
+                return;
+            }
+
+            switch (userChoice)
+            {
+                case 1:
+                    UserBooking();
+                    break;
+                case 2:
+                    CancelTicket();
+                    break;
+                case 3:
+                    ShowAvailableTrains();
+                    break;
+                case 4:
+                    UserId = 0; // Logout by resetting UserId
+                    Console.WriteLine("Logged out successfully.");
+                    UserActions(); // Redirect back to user action page
+                    break;
+                default:
+                    Console.WriteLine("Invalid choice. Please try again.");
+                    UserActionsAfterLogin(); // Redirect back to actions after login
+                    break;
+            }
+        }
+
+        static void UserBooking()
+        {
+            if (UserId == 0)
+            {
+                Console.WriteLine("Please log in to book tickets.");
+                UserLogin();
+            }
+
             Console.WriteLine("Enter Train ID to Book Ticket:");
-            int trainId = int.Parse(Console.ReadLine());
+            int trainId;
+            if (!int.TryParse(Console.ReadLine(), out trainId))
+            {
+                Console.WriteLine("Invalid Train ID. Please enter a valid number.");
+                ShowAvailableTrains();
+                UserActionsAfterLogin();
+                return;
+            }
 
             Console.WriteLine("Select Class (1st/2nd/Sleeper):");
             string selectedClass = Console.ReadLine();
 
-            // Check if the train exists
-            string trainName = GetTrainName(trainId);
-            if (trainName == null)
+            Console.WriteLine("Enter Number of Tickets to Book:");
+            int ticketsToBook;
+            if (!int.TryParse(Console.ReadLine(), out ticketsToBook) || ticketsToBook <= 0)
             {
-                Console.WriteLine("Train does not exist.");
+                Console.WriteLine("Invalid number of tickets. Please enter a valid number.");
+                UserActionsAfterLogin();
                 return;
             }
 
             // Check available berths in the selected class
             int availableBerths = GetAvailableBerths(trainId, selectedClass);
-            if (availableBerths <= 0)
+            if (availableBerths <= 0 || ticketsToBook > availableBerths)
             {
-                Console.WriteLine($"No available berths for {selectedClass} class on this train.");
+                Console.WriteLine("Not enough available berths.");
+                UserActionsAfterLogin();
                 return;
             }
 
-            Console.WriteLine("Enter Number of Tickets to Book:");
-            int ticketsToBook = int.Parse(Console.ReadLine());
-
-            if (ticketsToBook > availableBerths)
-            {
-                Console.WriteLine($"Insufficient available berths for {selectedClass} class. Available berths: {availableBerths}");
-                return;
-            }
-
-            // Update available berths in the selected class
-            UpdateAvailableBerths(trainId, selectedClass, availableBerths - ticketsToBook);
-
-            Console.WriteLine($"Tickets booked successfully for {ticketsToBook} passengers in {selectedClass} class.");
+            // Book ticket
+            BookTicket(trainId, selectedClass, ticketsToBook);
         }
 
-        public static void CancelTicket()
+        static void CancelTicket()
         {
-            Console.WriteLine("Enter Train ID to Cancel Ticket:");
-            int trainId = int.Parse(Console.ReadLine());
-
-            Console.WriteLine("Select Class (1st/2nd/Sleeper):");
-            string selectedClass = Console.ReadLine();
-
-            // Check if the train exists
-            string trainName = GetTrainName(trainId);
-            if (trainName == null)
+            if (UserId == 0)
             {
-                Console.WriteLine("Train does not exist.");
+                Console.WriteLine("Please log in to cancel tickets.");
+                UserLogin();
+            }
+
+            Console.WriteLine("Enter Booking ID to Cancel Ticket:");
+            int bookingId;
+            if (!int.TryParse(Console.ReadLine(), out bookingId))
+            {
+                Console.WriteLine("Invalid Booking ID. Please enter a valid number.");
+                UserActionsAfterLogin();
                 return;
             }
 
-            Console.WriteLine("Enter Number of Tickets to Cancel:");
-            int ticketsToCancel = int.Parse(Console.ReadLine());
-
-            // Check if tickets can be canceled
-            if (ticketsToCancel <= 0)
+            // Check if the booking exists
+            if (!CheckBookingExists(bookingId))
             {
-                Console.WriteLine("Invalid number of tickets to cancel.");
+                Console.WriteLine("Booking does not exist.");
+                UserActionsAfterLogin();
                 return;
             }
 
-            // Update available berths in the selected class
-            int availableBerths = GetAvailableBerths(trainId, selectedClass);
-            UpdateAvailableBerths(trainId, selectedClass, availableBerths + ticketsToCancel);
+            // Cancel ticket
+            string query = "UPDATE Bookings SET IsActive = 0 WHERE BookingId = @BookingId AND UserId = @UserId";
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@BookingId", bookingId);
+                command.Parameters.AddWithValue("@UserId", UserId);
 
-            Console.WriteLine($"Tickets canceled successfully for {ticketsToCancel} passengers in {selectedClass} class.");
+                int rowsAffected = command.ExecuteNonQuery();
+                if (rowsAffected > 0)
+                    Console.WriteLine("Ticket canceled successfully.");
+                else
+                    Console.WriteLine("Failed to cancel ticket.");
+            }
+            UserActionsAfterLogin(); // Redirect back to actions after cancellation
         }
 
-        public static void ShowAvailableTrains()
+        static void ShowAvailableTrains()
         {
+            string query = "SELECT TrainId, TrainName, FirstClassBerths, SecondClassBerths, SleeperBerths, Source, Destination FROM Trains WHERE IsActive = 1";
 
-            using (SqlCommand command = new SqlCommand("SELECT TrainName,TrainId,Source,Destination, FirstClassBerths, SecondClassBerths, SleeperBerths FROM Trains", connection))
+            using (SqlCommand command = new SqlCommand(query, connection))
             {
-                SqlDataReader reader = command.ExecuteReader();
-
-                Console.WriteLine($"Available Trains:");
-                while (reader.Read())
+                using (SqlDataReader reader = command.ExecuteReader())
                 {
-                    Console.WriteLine($"Train Name: {reader["TrainName"]}");
-                    Console.WriteLine($"Train ID: {reader["TrainId"]}");
-                    Console.WriteLine($"Route: {reader["Source"]} to {reader["Destination"]}");
-                    Console.WriteLine($"1st Class Berths: {reader["FirstClassBerths"]}");
-                    Console.WriteLine($"2nd Class Berths: {reader["SecondClassBerths"]}");
-                    Console.WriteLine($"Sleeper Berths: {reader["SleeperBerths"]}");
+                    Console.WriteLine("Available Trains:");
                     Console.WriteLine("---------------------------------------------");
+                    while (reader.Read())
+                    {
+                        Console.WriteLine($"Train ID: {reader["TrainId"]}");
+                        Console.WriteLine($"Train Name: {reader["TrainName"]}");
+                        Console.WriteLine($"1st Class Berths: {reader["FirstClassBerths"]}");
+                        Console.WriteLine($"2nd Class Berths: {reader["SecondClassBerths"]}");
+                        Console.WriteLine($"Sleeper Berths: {reader["SleeperBerths"]}");
+                        Console.WriteLine($"Route: {reader["Source"]} to {reader["Destination"]}");
+                        Console.WriteLine("---------------------------------------------");
+                    }
                 }
             }
-        } // completed this
-
-        private static string GetTrainName(int trainId)
-        {
-            string trainName = null;
-            using (SqlCommand command = new SqlCommand("SELECT TrainName FROM Trains WHERE TrainId = @TrainId", connection))
-            {
-                command.Parameters.AddWithValue("@TrainId", trainId);
-                object result = command.ExecuteScalar();
-                if (result != null)
-                {
-                    trainName = result.ToString();
-                }
-            }
-            return trainName;
+            UserActionsAfterLogin(); // Redirect back to actions after showing available trains
         }
 
-        private static int GetAvailableBerths(int trainId, string selectedClass)
+        static int GetAvailableBerths(int trainId, string selectedClass)
         {
             int availableBerths = -1;
             string column = "";
@@ -356,7 +399,8 @@ namespace RailwayTicketBookingSystem
                     return availableBerths;
             }
 
-            using (SqlCommand command = new SqlCommand($"SELECT {column} FROM Trains WHERE TrainId = @TrainId", connection))
+            string query = $"SELECT {column} FROM Trains WHERE TrainId = @TrainId AND IsActive = 1";
+            using (SqlCommand command = new SqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@TrainId", trainId);
                 object result = command.ExecuteScalar();
@@ -368,7 +412,54 @@ namespace RailwayTicketBookingSystem
             return availableBerths;
         }
 
-        private static void UpdateAvailableBerths(int trainId, string selectedClass, int newAvailableBerths)
+        static bool CheckBookingExists(int bookingId)
+        {
+            bool bookingExists = false;
+            string query = "SELECT COUNT(*) FROM Bookings WHERE BookingId = @BookingId AND UserId = @UserId AND IsActive = 1";
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@BookingId", bookingId);
+                command.Parameters.AddWithValue("@UserId", UserId);
+                object result = command.ExecuteScalar();
+                if (result != null && Convert.ToInt32(result) > 0)
+                {
+                    bookingExists = true;
+                }
+            }
+            return bookingExists;
+        }
+
+        static void BookTicket(int trainId, string selectedClass, int ticketsToBook)
+        {
+            string query = "INSERT INTO Bookings (UserId, TrainId, ClassType, NumTickets) VALUES (@UserId, @TrainId, @ClassType, @NumTickets); SELECT SCOPE_IDENTITY();";
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@UserId", UserId);
+                command.Parameters.AddWithValue("@TrainId", trainId);
+                command.Parameters.AddWithValue("@ClassType", selectedClass);
+
+                command.Parameters.AddWithValue("@NumTickets", ticketsToBook);
+
+                object result = command.ExecuteScalar();
+                if (result != null)
+                {
+                    int bookingId = Convert.ToInt32(result);
+                    // Update available berths
+                    UpdateAvailableBerths(trainId, selectedClass, ticketsToBook);
+                    Console.WriteLine("Ticket booked successfully.");
+                    Console.WriteLine("Thanks For Booking The Ticket");
+                    Console.WriteLine($"Your Booking ID is: {bookingId}");
+
+                }
+                else
+                {
+                    Console.WriteLine("Failed to book ticket.");
+                }
+            }
+            UserActionsAfterLogin(); // Redirect back to actions after booking
+        }
+
+        static void UpdateAvailableBerths(int trainId, string selectedClass, int ticketsToBook)
         {
             string column = "";
             switch (selectedClass.ToLower())
@@ -391,11 +482,229 @@ namespace RailwayTicketBookingSystem
                     return;
             }
 
-            using (SqlCommand command = new SqlCommand($"UPDATE Trains SET {column} = @AvailableBerths WHERE TrainId = @TrainId", connection))
+            string query = $"UPDATE Trains SET {column} = {column} - @TicketsToBook WHERE TrainId = @TrainId AND IsActive = 1";
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@TicketsToBook", ticketsToBook);
+                command.Parameters.AddWithValue("@TrainId", trainId);
+                command.ExecuteNonQuery();
+            }
+        }
+    }
+
+    static class Admin
+    {
+        public static void AddTrain(SqlConnection connection)
+        {
+            Console.WriteLine("Enter Train ID:");
+            int trainId;
+            if (!int.TryParse(Console.ReadLine(), out trainId))
+            {
+                Console.WriteLine("Invalid Train ID. Please enter a valid number.");
+                return;
+            }
+
+            Console.WriteLine("Enter Train Name:");
+            string trainName = Console.ReadLine();
+
+            Console.WriteLine("Enter Total Berths (1st Class):");
+            int firstClassBerths;
+            if (!int.TryParse(Console.ReadLine(), out firstClassBerths))
+            {
+                Console.WriteLine("Invalid input. Please enter a valid number.");
+                return;
+            }
+
+            Console.WriteLine("Enter Total Berths (2nd Class):");
+            int secondClassBerths;
+            if (!int.TryParse(Console.ReadLine(), out secondClassBerths))
+            {
+                Console.WriteLine("Invalid input. Please enter a valid number.");
+                return;
+            }
+
+            Console.WriteLine("Enter Total Berths (Sleeper):");
+            int sleeperBerths;
+            if (!int.TryParse(Console.ReadLine(), out sleeperBerths))
+            {
+                Console.WriteLine("Invalid input. Please enter a valid number.");
+                return;
+            }
+
+            Console.WriteLine("Enter Source:");
+            string source = Console.ReadLine();
+
+            Console.WriteLine("Enter Destination:");
+            string destination = Console.ReadLine();
+
+            string query = "INSERT INTO Trains (TrainId, TrainName, FirstClassBerths, SecondClassBerths, SleeperBerths, Source, Destination, IsActive) " +
+                           "VALUES (@TrainId, @TrainName, @FirstClassBerths, @SecondClassBerths, @SleeperBerths, @Source, @Destination, 1)";
+
+            using (SqlCommand command = new SqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@TrainId", trainId);
-                command.Parameters.AddWithValue("@AvailableBerths", newAvailableBerths);
-                command.ExecuteNonQuery();
+                command.Parameters.AddWithValue("@TrainName", trainName);
+                command.Parameters.AddWithValue("@FirstClassBerths", firstClassBerths);
+                command.Parameters.AddWithValue("@SecondClassBerths", secondClassBerths);
+                command.Parameters.AddWithValue("@SleeperBerths", sleeperBerths);
+                command.Parameters.AddWithValue("@Source", source);
+                command.Parameters.AddWithValue("@Destination", destination);
+
+                int rowsAffected = command.ExecuteNonQuery();
+                if (rowsAffected > 0)
+                    Console.WriteLine("Train added successfully.");
+                else
+                    Console.WriteLine("Failed to add train.");
+            }
+        }
+
+        /*
+          public static void ModifyTrain(SqlConnection connection)
+        {
+            Console.WriteLine("Enter Train ID to Modify:");
+            int trainId;
+            if (!int.TryParse(Console.ReadLine(), out trainId))
+            {
+                Console.WriteLine("Invalid Train ID. Please enter a valid number.");
+                return;
+            }
+
+            Console.WriteLine("Enter New Total Berths (1st Class):");
+            int newFirstClassBerths;
+            if (!int.TryParse(Console.ReadLine(), out newFirstClassBerths))
+            {
+                Console.WriteLine("Invalid input. Please enter a valid number.");
+                return;
+            }
+
+            Console.WriteLine("Enter New Total Berths (2nd Class):");
+            int newSecondClassBerths;
+            if (!int.TryParse(Console.ReadLine(), out newSecondClassBerths))
+            {
+                Console.WriteLine("Invalid input. Please enter a valid number.");
+                return;
+            }
+
+            Console.WriteLine("Enter New Total Berths (Sleeper):");
+            int newSleeperBerths;
+            if (!int.TryParse(Console.ReadLine(), out newSleeperBerths))
+            {
+                Console.WriteLine("Invalid input. Please enter a valid number.");
+                return;
+            }
+
+            Console.WriteLine("Enter New Source:");
+            string newSource = Console.ReadLine();
+
+            Console.WriteLine("Enter New Destination:");
+            string newDestination = Console.ReadLine();
+
+            string query = "UPDATE Trains SET Source = @NewSource, Destination = @NewDestination WHERE TrainId = @TrainId AND IsActive = 1";
+            FirstClassBerths = @NewFirstClassBerths, SecondClassBerths = @NewSecondClassBerths, " + "SleeperBerths = @NewSleeperBerths,
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@TrainId", trainId);
+                command.Parameters.AddWithValue("@NewFirstClassBerths", newFirstClassBerths);
+                command.Parameters.AddWithValue("@NewSecondClassBerths", newSecondClassBerths);
+                command.Parameters.AddWithValue("@NewSleeperBerths", newSleeperBerths);
+                command.Parameters.AddWithValue("@NewSource", newSource);
+                command.Parameters.AddWithValue("@NewDestination", newDestination);
+
+                int rowsAffected = command.ExecuteNonQuery();
+                if (rowsAffected > 0)
+                    Console.WriteLine("Train modified successfully.");
+                else
+                    Console.WriteLine("Failed to modify train.");
+            }
+        }
+
+        */
+
+        public static void ModifyTrain(SqlConnection connection)
+        {
+            Console.WriteLine("Enter Train ID to Modify:");
+            int trainId;
+            if (!int.TryParse(Console.ReadLine(), out trainId))
+            {
+                Console.WriteLine("Invalid Train ID. Please enter a valid number.");
+                return;
+            }
+
+            Console.WriteLine("Enter New Source:");
+            string newSource = Console.ReadLine();
+
+            Console.WriteLine("Enter New Destination:");
+            string newDestination = Console.ReadLine();
+
+            Console.WriteLine("Is the train active? (Enter '1' for active, '0' for inactive):");
+            int isActive;
+            if (!int.TryParse(Console.ReadLine(), out isActive) || (isActive != 0 && isActive != 1))
+            {
+                Console.WriteLine("Invalid input. Please enter '1' for active or '0' for inactive.");
+                return;
+            }
+
+            string query = "UPDATE Trains SET Source = @NewSource, Destination = @NewDestination, IsActive = @IsActive WHERE TrainId = @TrainId";
+
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@TrainId", trainId);
+                command.Parameters.AddWithValue("@NewSource", newSource);
+                command.Parameters.AddWithValue("@NewDestination", newDestination);
+                command.Parameters.AddWithValue("@IsActive", isActive);
+
+                int rowsAffected = command.ExecuteNonQuery();
+                if (rowsAffected > 0)
+                    Console.WriteLine("Train modified successfully.");
+                else
+                    Console.WriteLine("Failed to modify train.");
+            }
+        }
+
+        public static void DeleteTrain(SqlConnection connection)
+        {
+            Console.WriteLine("Enter Train ID to Delete:");
+            int trainId;
+            if (!int.TryParse(Console.ReadLine(), out trainId))
+            {
+                Console.WriteLine("Invalid Train ID. Please enter a valid number.");
+                return;
+            }
+
+            string query = "UPDATE Trains SET IsActive = 0 WHERE TrainId = @TrainId AND IsActive = 1";
+
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@TrainId", trainId);
+                int rowsAffected = command.ExecuteNonQuery();
+                if (rowsAffected > 0)
+                    Console.WriteLine("Train deleted successfully.");
+                else
+                    Console.WriteLine("Failed to delete train.");
+            }
+        }
+        public static void ShowAllTrains(SqlConnection connection)
+        {
+            string query = "SELECT * FROM Trains";
+
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    Console.WriteLine("Available Trains:");
+                    Console.WriteLine("---------------------------------------------");
+                    while (reader.Read())
+                    {
+                        Console.WriteLine($"Train ID: {reader["TrainId"]}");
+                        Console.WriteLine($"Train Name: {reader["TrainName"]}");
+                        Console.WriteLine($"1st Class Berths: {reader["FirstClassBerths"]}");
+                        Console.WriteLine($"2nd Class Berths: {reader["SecondClassBerths"]}");
+                        Console.WriteLine($"Sleeper Berths: {reader["SleeperBerths"]}");
+                        Console.WriteLine($"Route: {reader["Source"]} to {reader["Destination"]}");
+                        Console.WriteLine($"Train Available: {reader["IsActive"]}");
+                        Console.WriteLine("---------------------------------------------");
+                    }
+                }
             }
         }
     }
