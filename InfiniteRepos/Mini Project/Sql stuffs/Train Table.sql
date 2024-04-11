@@ -33,6 +33,9 @@ CREATE TABLE Users (
     Username NVARCHAR(50) UNIQUE NOT NULL,
     Password NVARCHAR(50) NOT NULL
 )
+alter table users
+add Email varchar(50)
+
 insert into Users (Username,Password)
 values('','')
 
@@ -57,7 +60,21 @@ CREATE TABLE Bookings (
     FOREIGN KEY (TrainId) REFERENCES Trains(TrainId)
 )
 
+CREATE TABLE Cancellations (
+    CancellationId INT PRIMARY KEY IDENTITY(1,1),
+    BookingId INT NOT NULL,
+    UserId INT NOT NULL,
+    CancellationDate DATETIME NOT NULL DEFAULT GETDATE(),
+    Reason NVARCHAR(MAX),
+    CONSTRAINT FK_Cancellations_Bookings FOREIGN KEY (BookingId) REFERENCES Bookings(BookingId),
+    CONSTRAINT FK_Cancellations_Users FOREIGN KEY (UserId) REFERENCES Users(UserId)
+)
+
+
 select * from Users
 select * from Admins
 select * from Trains
 select * from Bookings
+select * from Cancellations
+
+UPDATE Users SET Email = 'maheshsekharsahu@gmail.com' WHERE UserId = 15;

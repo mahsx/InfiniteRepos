@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Data.SqlClient;
+using System.Net;
+using System.Net.Mail;
 
 namespace RailwayTicketBookingSystem
 {
@@ -9,6 +11,11 @@ namespace RailwayTicketBookingSystem
         private static SqlConnection connection = new SqlConnection(connectionString);
         private static int UserId; // This should be set after successful user login
         private static int AdminId;
+        private static string AdminEmail = "MSSQUADGAMING@GMAIL.COM"; // Change this to your admin email
+        private static string SmtpServer = "smtp.gmail.com"; // Change this to your SMTP server
+        private static int SmtpPort = 587; // Change this to your SMTP port
+        private static string SmtpUsername = "MSSQUADGAMING@GMAIL.COM"; // Change this to your SMTP username
+        private static string SmtpPassword = "gubohycqranvacmo"; // Change this to your SMTP password
 
         static void Main(string[] args)
         {
@@ -70,6 +77,30 @@ namespace RailwayTicketBookingSystem
             }
         }
 
+        static void SendOTPByEmail(string userEmail, string otp)
+        {
+            try
+            {
+                using (SmtpClient smtpClient = new SmtpClient(SmtpServer, SmtpPort))
+                {
+                    smtpClient.UseDefaultCredentials = false;
+                    smtpClient.Credentials = new NetworkCredential(SmtpUsername, SmtpPassword);
+                    smtpClient.EnableSsl = true;
+
+                    MailMessage mailMessage = new MailMessage(AdminEmail, userEmail);
+                    mailMessage.Subject = "OTP for Railway Ticket Booking System";
+                    mailMessage.Body = $"Your OTP for login is: {otp}";
+
+                    smtpClient.Send(mailMessage);
+                    Console.WriteLine("OTP sent successfully to your email.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error sending OTP: {ex.Message}");
+            }
+        }
+    
         static void AdminLogin()
         {
             Console.WriteLine("Enter Admin Username:");
@@ -178,26 +209,72 @@ namespace RailwayTicketBookingSystem
             Console.WriteLine("Enter Password:");
             string password = Console.ReadLine();
 
-            string query = "SELECT UserId FROM Users WHERE Username = @Username AND Password = @Password";
+            string query = "SELECT UserId, Email FROM Users WHERE Username = @Username AND Password = @Password";
 
-            using (SqlCommand command = new SqlCommand(query, connection))
+            // Use a new connection object within this method scope
+            using (SqlConnection loginConnection = new SqlConnection(connectionString))
             {
-                command.Parameters.AddWithValue("@Username", username);
-                command.Parameters.AddWithValue("@Password", password);
-                object result = command.ExecuteScalar();
-                if (result != null)
+                using (SqlCommand command = new SqlCommand(query, loginConnection))
                 {
-                    UserId = Convert.ToInt32(result);
-                    Console.WriteLine("Login successful.");
-                    UserActionsAfterLogin(); // Redirect to actions after login
+                    command.Parameters.AddWithValue("@Username", username);
+                    command.Parameters.AddWithValue("@Password", password);
+
+                    try
+                    {
+                        loginConnection.Open();
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                UserId = Convert.ToInt32(reader["UserId"]);
+                                string userEmail = reader["Email"].ToString();
+                                Console.WriteLine("Login successful. Wait For OTP Verification");
+                                string otp = GenerateOTP();
+                                // Close DataReader before sending OTP
+                                reader.Close();
+                                SendOTPByEmail(userEmail, otp);
+                                // Redirect to OTP verification
+                                VerifyOTP(otp);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Invalid username or password.");
+                                UserActions(); // Redirect back to user action page
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error: {ex.Message}");
+                    }
                 }
-                else
-                {
-                    Console.WriteLine("Invalid username or password.");
-                    UserActions(); // Redirect back to user action page
-                }
+            } // Connection is automatically closed checked 1
+        }
+
+        static string GenerateOTP()
+        {
+            Random random = new Random();
+            int otpValue = random.Next(100000, 999999);
+            return otpValue.ToString();
+        }
+
+        static void VerifyOTP(string otp)
+        {
+            Console.WriteLine("Enter OTP received on your email:");
+            string userOTP = Console.ReadLine();
+
+            if (userOTP == otp)
+            {
+                Console.WriteLine("OTP verified successfully...Enjoy!!");
+                UserActionsAfterLogin(); // Redirect to actions after login
+            }
+            else
+            {
+                Console.WriteLine("Invalid OTP. Please try again.");
+                UserLogin(); // Redirect back to login
             }
         }
+
 
         static void RegisterUser()
         {
