@@ -335,7 +335,7 @@ namespace RailwayTicketBookingSystem
             }
 
             // Cancel ticket
-            string query = "UPDATE Bookings SET IsActive = 0 WHERE BookingId = @BookingId AND UserId = @UserId";
+            string query = "DELETE BOOKINGS WHERE BookingId = @BookingId AND UserId = @UserId";
             using (SqlCommand command = new SqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@BookingId", bookingId);
@@ -415,7 +415,7 @@ namespace RailwayTicketBookingSystem
         static bool CheckBookingExists(int bookingId)
         {
             bool bookingExists = false;
-            string query = "SELECT COUNT(*) FROM Bookings WHERE BookingId = @BookingId AND UserId = @UserId AND IsActive = 1";
+            string query = "SELECT COUNT(*) FROM Bookings WHERE BookingId = @BookingId AND UserId = @UserId ";
             using (SqlCommand command = new SqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@BookingId", bookingId);
