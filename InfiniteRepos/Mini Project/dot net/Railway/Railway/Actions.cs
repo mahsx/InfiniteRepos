@@ -309,6 +309,7 @@ namespace RailwayTicketBookingSystem
             BookTicket(trainId, selectedClass, ticketsToBook);
         }
 
+
         static void CancelTicket()
         {
             if (UserId == 0)
@@ -334,21 +335,90 @@ namespace RailwayTicketBookingSystem
                 return;
             }
 
-            // Cancel ticket
-            string query = "DELETE BOOKINGS WHERE BookingId = @BookingId AND UserId = @UserId";
-            using (SqlCommand command = new SqlCommand(query, connection))
+            // Retrieve the train ID and number of tickets to cancel
+            int trainId = 0;
+            int ticketsToCancel = 0;
+            string classType = "";
+
+            string queryBookingDetails = "SELECT TrainId, ClassType, NumTickets FROM Bookings WHERE BookingId = @BookingId";
+            using (SqlCommand command = new SqlCommand(queryBookingDetails, connection))
+            {
+                command.Parameters.AddWithValue("@BookingId", bookingId);
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        trainId = Convert.ToInt32(reader["TrainId"]);
+                        classType = reader["ClassType"].ToString();
+                        ticketsToCancel = Convert.ToInt32(reader["NumTickets"]);
+                    }
+                }
+            }
+
+            if (trainId == 0 || ticketsToCancel == 0)
+            {
+                Console.WriteLine("Error retrieving booking details.");
+                UserActionsAfterLogin();
+                return;
+            }
+
+            // Cancel the ticket by deleting from the Bookings table
+            string queryCancelTicket = "DELETE FROM Bookings WHERE BookingId = @BookingId AND UserId = @UserId";
+
+            using (SqlCommand command = new SqlCommand(queryCancelTicket, connection))
             {
                 command.Parameters.AddWithValue("@BookingId", bookingId);
                 command.Parameters.AddWithValue("@UserId", UserId);
 
                 int rowsAffected = command.ExecuteNonQuery();
+
                 if (rowsAffected > 0)
-                    Console.WriteLine("Ticket canceled successfully.");
+                {
+                    // Ticket canceled successfully, update available berths in Trains table
+                    string columnToUpdate = "";
+                    switch (classType.ToLower())
+                    {
+                        case "1st":
+                        case "first":
+                        case "1st class":
+                            columnToUpdate = "FirstClassBerths";
+                            break;
+                        case "2nd":
+                        case "second":
+                        case "2nd class":
+                            columnToUpdate = "SecondClassBerths";
+                            break;
+                        case "sleeper":
+                            columnToUpdate = "SleeperBerths";
+                            break;
+                        default:
+                            Console.WriteLine("Invalid class type.");
+                            UserActionsAfterLogin();
+                            return;
+                    }
+
+                    string queryUpdateBerths = $"UPDATE Trains SET {columnToUpdate} = {columnToUpdate} + @TicketsToCancel WHERE TrainId = @TrainId";
+
+                    using (SqlCommand updateCommand = new SqlCommand(queryUpdateBerths, connection))
+                    {
+                        updateCommand.Parameters.AddWithValue("@TicketsToCancel", ticketsToCancel);
+                        updateCommand.Parameters.AddWithValue("@TrainId", trainId);
+
+                        int updateRows = updateCommand.ExecuteNonQuery();
+                        if (updateRows > 0)
+                            Console.WriteLine("Ticket canceled successfully. Available berths updated.");
+                        else
+                            Console.WriteLine("Failed to update available berths.");
+                    }
+                }
                 else
+                {
                     Console.WriteLine("Failed to cancel ticket.");
+                }
             }
             UserActionsAfterLogin(); // Redirect back to actions after cancellation
         }
+
 
         static void ShowAvailableTrains()
         {
