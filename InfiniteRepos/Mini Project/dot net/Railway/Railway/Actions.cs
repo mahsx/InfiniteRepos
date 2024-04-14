@@ -21,11 +21,11 @@ namespace RailwayTicketBookingSystem
         private static int UserId; // This should be set after successful user login
         private static int AdminId;
         private static int MaxTicketsPerBooking = 5;
-        private static string AdminEmail = "null"; // Change this to your admin email
+        private static string AdminEmail = "MSSQUADGAMING@GMAIL.COM"; // Change this to your admin email
         private static string SmtpServer = "smtp.gmail.com"; // Change this to your SMTP server
         private static int SmtpPort = 587; // Change this to your SMTP port
-        private static string SmtpUsername = " "; // Change this to your SMTP username
-        private static string SmtpPassword = " "; // Change this to your SMTP password
+        private static string SmtpUsername = "MSSQUADGAMING@GMAIL.COM"; // Change this to your SMTP username
+        private static string SmtpPassword = "gubohycqranvacmo"; // Change this to your SMTP password
 
         static Train GetTrainById(int trainId)
         {
@@ -336,7 +336,7 @@ namespace RailwayTicketBookingSystem
         static string GenerateOTP()
         {
             Random random = new Random();
-            int otpValue = random.Next(100,101);
+            int otpValue = random.Next(100000,999999);
             return otpValue.ToString();
         }  //clear
 
