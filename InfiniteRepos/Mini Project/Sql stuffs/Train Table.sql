@@ -88,5 +88,3 @@ UPDATE Admins SET AdminEmail = '' WHERE AdminId = 4;
 
 alter table bookings
 drop column NumTickets
-
-delete Bookings
