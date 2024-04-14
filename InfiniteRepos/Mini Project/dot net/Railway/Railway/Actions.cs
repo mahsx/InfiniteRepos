@@ -2,6 +2,8 @@
 using System.Data.SqlClient;
 using System.Net;
 using System.Net.Mail;
+using System.Threading;
+
 
 namespace RailwayTicketBookingSystem
 {
@@ -21,7 +23,7 @@ namespace RailwayTicketBookingSystem
         {
             Home();
             Console.ReadKey();
-        }
+        } 
 
         static void Home()
         {
@@ -34,10 +36,11 @@ namespace RailwayTicketBookingSystem
                 {
                     Console.WriteLine("\t\t\t\t\t Welcome to Railway Ticket Booking System ");
                     Console.WriteLine("\t\t\t\t\t------------------------------------------ \n");
-                    Console.WriteLine("1. Admin \n");
-                    Console.WriteLine("2. User \n");
+                    Console.WriteLine("1. Admin");
+                    Console.WriteLine("2. User");
                     Console.WriteLine("3. Exit \n");
-                    Console.WriteLine("Enter your choice:");
+                    Console.Write("Enter your choice: ");
+
 
                     int choice;
                     if (!int.TryParse(Console.ReadLine(), out choice))
@@ -49,9 +52,24 @@ namespace RailwayTicketBookingSystem
                     switch (choice)
                     {
                         case 1:
+                            
+                            for (int i = 2; i > 0; i--)
+                            {
+                                Console.Clear();
+                                Console.WriteLine("Redirecting to Admin LogIn in " + i + " seconds...");
+                                Thread.Sleep(1000); // Pause for 1 second
+                            }
+                            Console.Clear();
                             AdminLogin();
                             break;
                         case 2:
+                            for (int i = 2; i > 0; i--)
+                            {
+                                Console.Clear();
+                                Console.WriteLine("Redirecting to User Page in " + i + " seconds...");
+                                Thread.Sleep(1000); // Pause for 1 second
+                            }
+                            Console.Clear();
                             UserActions();
                             break;
                         case 3:
@@ -75,7 +93,7 @@ namespace RailwayTicketBookingSystem
                     Console.WriteLine("Database connection closed. \n");
                 }
             }
-        }
+        } //clear
 
         static void SendOTPByEmail(string userEmail, string otp)
         {
@@ -88,7 +106,7 @@ namespace RailwayTicketBookingSystem
                     smtpClient.EnableSsl = true;
 
                     MailMessage mailMessage = new MailMessage(AdminEmail, userEmail);
-                    mailMessage.Subject = "OTP for Railway Ticket Booking System";
+                    mailMessage.Subject = "OTP for Mahesh's Booking System";
                     mailMessage.Body = $"Your OTP for login is: {otp}";
 
                     smtpClient.Send(mailMessage);
@@ -99,43 +117,62 @@ namespace RailwayTicketBookingSystem
             {
                 Console.WriteLine($"Error sending OTP: {ex.Message}");
             }
-        }
+        } //clear
     
         static void AdminLogin()
         {
-            Console.WriteLine("Enter Admin Username:");
+            Console.Clear();
+            Console.WriteLine("\t\t\t\t\t WELCOME TO ADMIN LOG-IN");
+            Console.WriteLine("\t\t\t\t\t--------------------------- \n\n");
+
+            Console.Write("Enter Admin Username: ");
             string Username = Console.ReadLine();
 
-            Console.WriteLine("Enter Admin Password:");
+            Console.Write("Enter Admin Password: ");
             string Password = Console.ReadLine();
 
-            string query = "SELECT AdminId FROM Admins WHERE Username = @Username AND Password = @Password";
+            Console.Write("Enter Admin Email: ");
+            string AdminEmail = Console.ReadLine();
+            Console.Clear();
+
+
+            string query = "SELECT AdminId FROM Admins WHERE Username = @Username AND Password = @Password and AdminEmail = @AdminEmail";
 
             using (SqlCommand command = new SqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@Username", Username);
                 command.Parameters.AddWithValue("@Password", Password);
+                command.Parameters.AddWithValue("@AdminEmail", AdminEmail);
                 object result = command.ExecuteScalar();
                 if (result != null)
                 {
+                    for (int i = 3; i > 0; i--)
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Redirecting to Admin Action in " + i + " seconds...");
+                        Thread.Sleep(1000); // Pause for 1 second
+                    }
+
+                    Console.Clear();
                     AdminActions();
                 }
                 else
                 {
-                    Console.WriteLine("Invalid admin credentials.");
+                    Console.WriteLine("Invalid admin credentials. Kindly Retry...\n \n");
+                    return;
                 }
             }
-        }
+        }  //clear
 
         static void AdminActions()
         {
             Console.WriteLine("\t\t\t\t\t WELCOME TO ADMIN SECTION");
-            Console.WriteLine("\t\t\t\t\t ------------------------- \n");
-            Console.WriteLine("1. Add Train \n ");
-            Console.WriteLine("2. Modify Train \n ");
-            Console.WriteLine("3. Delete Train \n ");
-            Console.WriteLine("4. Show All Trains \n");
-            Console.WriteLine("5. Logout \n");
+            Console.WriteLine("\t\t\t\t\t--------------------------- \n\n");
+            Console.WriteLine("1. Add Train");
+            Console.WriteLine("2. Modify Train");
+            Console.WriteLine("3. Delete Train");
+            Console.WriteLine("4. Show All Trains");
+            Console.WriteLine("5. Logout");
             Console.WriteLine("Enter your choice: \n ");
 
             int adminChoice;
@@ -168,23 +205,24 @@ namespace RailwayTicketBookingSystem
                     Console.WriteLine("Invalid choice. Please try again.");
                     break;
             }
-        }
+        }  //clear
 
 
 
         static void UserActions()
         {
-            Console.WriteLine("\t\t\t\t\t WELCOME TO USER SECTION");
-            Console.WriteLine("\t\t\t\t\t ------------------------ \n");
+            Console.Clear();
+            Console.WriteLine("\t\t\t\t\t WELCOME TO USER PAGE");
+            Console.WriteLine("\t\t\t\t\t----------------------- \n");
             Console.WriteLine("1. Existing User Login");
             Console.WriteLine("2. New User Registration");
-            Console.WriteLine("Enter your choice:");
+            Console.Write("Enter your choice: ");
 
             int userChoice;
             if (!int.TryParse(Console.ReadLine(), out userChoice))
             {
-                Console.WriteLine("Invalid input. Please enter a number.");
-                return;
+                
+                Console.WriteLine("Invalid input. Please enter a number.\n\n");
             }
 
             switch (userChoice)
@@ -196,17 +234,21 @@ namespace RailwayTicketBookingSystem
                     RegisterUser();
                     break;
                 default:
+                    Console.Clear();
                     Console.WriteLine("Invalid choice. Please try again.");
                     break;
             }
-        }
+        } //clear
 
         static void UserLogin()
         {
-            Console.WriteLine("Enter Username:");
+            Console.Clear();
+            Console.WriteLine("\t\t\t\t\t WELCOME TO USER LOG-IN");
+            Console.WriteLine("\t\t\t\t\t--------------------------- \n\n");
+            Console.Write("Enter Username: ");
             string username = Console.ReadLine();
 
-            Console.WriteLine("Enter Password:");
+            Console.Write("Enter Password: ");
             string password = Console.ReadLine();
 
             string query = "SELECT UserId, Email FROM Users WHERE Username = @Username AND Password = @Password";
@@ -229,6 +271,7 @@ namespace RailwayTicketBookingSystem
                                 UserId = Convert.ToInt32(reader["UserId"]);
                                 string userEmail = reader["Email"].ToString();
                                 Console.WriteLine("Login successful. Wait For OTP Verification");
+                                Console.WriteLine($"otp sent to :{userEmail}");
                                 string otp = GenerateOTP();
                                 // Close DataReader before sending OTP
                                 reader.Close();
@@ -238,8 +281,17 @@ namespace RailwayTicketBookingSystem
                             }
                             else
                             {
+                                Console.Clear();
                                 Console.WriteLine("Invalid username or password.");
+                                for (int i = 3; i > 0; i--)
+                                {
+                                    Console.Clear();
+                                    Console.WriteLine("Redirecting to User Action in " + i + " seconds...");
+                                    Thread.Sleep(1000); // Pause for 1 second
+                                }
+                                Console.Clear();
                                 UserActions(); // Redirect back to user action page
+                               
                             }
                         }
                     }
@@ -249,58 +301,83 @@ namespace RailwayTicketBookingSystem
                     }
                 }
             } // Connection is automatically closed checked 1
-        }
+        } //clear
 
         static string GenerateOTP()
         {
             Random random = new Random();
             int otpValue = random.Next(100000, 999999);
             return otpValue.ToString();
-        }
+        }  //clear
 
         static void VerifyOTP(string otp)
         {
-            Console.WriteLine("Enter OTP received on your email:");
+            Console.Write("Enter OTP received on your email: ");
             string userOTP = Console.ReadLine();
 
             if (userOTP == otp)
             {
-                Console.WriteLine("OTP verified successfully...Enjoy!!");
-                UserActionsAfterLogin(); // Redirect to actions after login
+                Console.WriteLine("OTP verified successfully");
+
+                for (int i = 2; i > 0; i--)
+                {
+                    Console.Clear();
+                    Console.WriteLine("Redirecting to user section in " + i + " seconds...");
+                    Thread.Sleep(1000); // Pause for 1 second
+                }
+                Console.Clear();
+                UserActionsAfterLogin();
             }
             else
             {
                 Console.WriteLine("Invalid OTP. Please try again.");
+                Console.Clear();
                 UserLogin(); // Redirect back to login
             }
-        }
-
+        }  //clear
 
         static void RegisterUser()
         {
-            Console.WriteLine("Enter Username:");
+            Console.Clear();
+
+            Console.WriteLine("\t\t\t\t\t WELCOME TO USER REGISTRATION");
+            Console.WriteLine("\t\t\t\t\t------------------------------- \n\n");
+
+            Console.Write("Enter Username: ");
             string username = Console.ReadLine();
 
-            Console.WriteLine("Enter Password:");
+            Console.Write("Enter Password: ");
             string password = Console.ReadLine();
 
-            string query = "INSERT INTO Users (Username, Password) VALUES (@Username, @Password)";
+            Console.Write("Enter Your Email: ");
+            string Email = Console.ReadLine();
+
+            string query = "INSERT INTO Users (Username, Password, Email) VALUES (@Username, @Password, @Email)";
 
             using (SqlCommand command = new SqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@Username", username);
                 command.Parameters.AddWithValue("@Password", password);
+                command.Parameters.AddWithValue("@Email", Email);
+
 
                 int rowsAffected = command.ExecuteNonQuery();
                 if (rowsAffected > 0)
                 {
                     Console.WriteLine("User registered successfully.");
-                    UserLogin(); // Redirect to login after registration
+                    for (int i = 2; i > 0; i--)
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Redirecting to LogIn in " + i + " seconds...");
+                        Thread.Sleep(1000); // Pause for 1 second
+                    }
+                    Console.Clear();
+                    UserLogin();
                 }
                 else
                     Console.WriteLine("Failed to register user.");
             }
-        }
+        } //clear
 
         static void UserActionsAfterLogin()
         {
@@ -323,12 +400,34 @@ namespace RailwayTicketBookingSystem
             switch (userChoice)
             {
                 case 1:
+                    for (int i = 3; i > 0; i--)
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Booking Page will be loaded in " + i + " seconds...");
+                        Thread.Sleep(1000); // Pause for 1 second
+                    }
+                    Console.Clear();
                     UserBooking();
                     break;
                 case 2:
+                    for (int i = 3; i > 0; i--)
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Cancellation Page will be loaded in " + i + " seconds...");
+                        Thread.Sleep(1000); // Pause for 1 second
+                    }
+                    Console.Clear();
                     CancelTicket();
                     break;
                 case 3:
+                    for (int i = 3; i > 0; i--)
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Available Trains will be shown in " + i + " seconds...");
+                        Thread.Sleep(1000); // Pause for 1 second
+                    }
+
+                    Console.Clear();
                     ShowAvailableTrains();
                     break;
                 case 4:
@@ -341,7 +440,7 @@ namespace RailwayTicketBookingSystem
                     UserActionsAfterLogin(); // Redirect back to actions after login
                     break;
             }
-        }
+        } //clear
 
         static void UserBooking()
         {
@@ -385,7 +484,6 @@ namespace RailwayTicketBookingSystem
             // Book ticket
             BookTicket(trainId, selectedClass, ticketsToBook);
         }
-
 
         static void CancelTicket()
         {

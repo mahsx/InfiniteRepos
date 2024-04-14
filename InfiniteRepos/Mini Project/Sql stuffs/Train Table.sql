@@ -26,7 +26,7 @@ update Trains
 set FirstClassBerths=100,
 	 secondclassBERTHS=100,
 	 SleeperBerths=100
-	 where TrainId in (12008,12213,12216,12301,97432)
+	 where TrainId in (12008,12213,12216,12301,12345,97432)
 
 CREATE TABLE Users (
     UserId INT PRIMARY KEY IDENTITY,
@@ -46,6 +46,9 @@ CREATE TABLE Admins (
     Password NVARCHAR(50) NOT NULL,
 )
 
+ALTER TABLE ADMINS
+ADD AdminEmail VARCHAR(30)
+
 INSERT INTO Admins (Username,Password) values ('','')
 delete from Admins where AdminId in (1,3)
 
@@ -59,6 +62,11 @@ CREATE TABLE Bookings (
     FOREIGN KEY (UserId) REFERENCES Users(UserId),
     FOREIGN KEY (TrainId) REFERENCES Trains(TrainId)
 )
+ALTER TABLE Bookings
+add PNR VARCHAR(20)
+ADD  PassengerAge INT NULL;
+
+
 
 CREATE TABLE Cancellations (
     CancellationId INT PRIMARY KEY IDENTITY(1,1),
@@ -70,11 +78,15 @@ CREATE TABLE Cancellations (
     CONSTRAINT FK_Cancellations_Users FOREIGN KEY (UserId) REFERENCES Users(UserId)
 )
 
-
 select * from Users
 select * from Admins
 select * from Trains
 select * from Bookings
 select * from Cancellations
 
-UPDATE Users SET Email = 'maheshsekharsahu@gmail.com' WHERE UserId = 15;
+UPDATE Admins SET AdminEmail = '' WHERE AdminId = 4;
+
+alter table bookings
+drop column NumTickets
+
+delete Bookings
