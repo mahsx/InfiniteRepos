@@ -26,7 +26,7 @@ update Trains
 set FirstClassBerths=100,
 	 secondclassBERTHS=100,
 	 SleeperBerths=100
-	 where TrainId in (12008,12213,12216,12301,12345,97432)
+	 where TrainId in (12008,12213,12216,12301,12345,97432,9876)
 
 CREATE TABLE Users (
     UserId INT PRIMARY KEY IDENTITY,
@@ -66,6 +66,8 @@ ALTER TABLE Bookings
 add PNR VARCHAR(20)
 ADD  PassengerAge INT NULL;
 
+ALTER TABLE bookings
+ADD Gender VARCHAR(9) CHECK (Gender IN ('Male', 'Female', 'Unknown'))
 
 
 CREATE TABLE Cancellations (
@@ -84,7 +86,7 @@ select * from Trains
 select * from Bookings
 select * from Cancellations
 
-UPDATE Admins SET AdminEmail = '' WHERE AdminId = 4;
+delete from users where UserId=24
 
-alter table bookings
-drop column NumTickets
+delete Bookings
+
